@@ -23,8 +23,7 @@ def plot_messages(chat_log):
     plt.tight_layout()
     plt.show()
 
-def plot_time_period(case, chat_log):
-    chat_log["Message_Count"] = 1
+def plot_time_freq(case, chat_log):
     frequency = ""
 
     match case.lower():
@@ -41,12 +40,9 @@ def plot_time_period(case, chat_log):
 
     grouped_data = chat_log.groupby(pd.Grouper(freq=frequency))["Message_Count"].sum()
 
-    grouped_data.plot(marker='o', linestyle='-')
-    plt.tight_layout()
+    return grouped_data
 
-
-def plot_time(case, chat_log):
-    chat_log["Message_Count"] = 1
+def plot_time_period(case, chat_log):
     chat_log = chat_log.drop("Message", axis='columns')
     chat_log = chat_log.drop("Name", axis='columns')
 
@@ -62,35 +58,39 @@ def plot_time(case, chat_log):
         case "year":
             grouped_data = chat_log.groupby([chat_log.index.year]).sum()
 
+    return grouped_data
 
-    grouped_data.plot(marker='o', linestyle='-')
-    plt.tight_layout()
+def plot_time_person(case, chat_log, graph, f_or_p="period", axis="linear", pos=[0,0]):
 
+    for name, group in chat_log.groupby("Name"):
+        if f_or_p == "period":
+            grouped_data =  plot_time_period(case,group)
+        elif f_or_p == "freq":
+            grouped_data =  plot_time_freq(case,group)
+        print(grouped_data)
+        graph[pos[0],pos[1]].plot(grouped_data.index, grouped_data, marker='.', linestyle='-', label=name)
 
-def plot_period(case, chat_log):
-    tally = {}
-    match case:
-        case "week":
-            for time in chat_log.index:
-                print(time.weekday())
-                try:
-                    tally[time.weekday()] += 1
-                except:
-                    tally[time.weekday()] = 1
-            print(tally)
-        case "hour":
-            for time in chat_log["Datetime"]:
-                try:
-                    tally[time.hour] += 1
-                except:
-                    tally[time.hour] = 1
-            print(tally)
+    graph[pos[0],pos[1]].set_yscale(axis)
+    box = graph[pos[0],pos[1]].get_position()
+    graph[pos[0],pos[1]].set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
+    graph[pos[0],pos[1]].legend(title="Name", loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=6)
 
 
 def main():
     chat_log = read_csv()
-    plot_time_period("HOUR",chat_log)
-    plot_time("HOUR",chat_log)
+    chat_log["Message_Count"] = 1
+    time = "week"
+
+    fig, graph = plt.subplots(2,2)
+
+    graph[0,0].plot((plot_time_freq(time, chat_log)), marker='.', linestyle='-')
+
+    graph[1,0].plot((plot_time_period(time, chat_log)), marker='.', linestyle='-')
+
+    plot_time_person(time, chat_log, graph, f_or_p="freq", axis="symlog", pos=[0,1])
+
+    plot_time_person(time, chat_log, graph, f_or_p="period", axis="symlog", pos=[1,1])
+
     plt.show()
 
 main()
