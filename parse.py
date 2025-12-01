@@ -2,14 +2,13 @@ import re
 from datetime import datetime
 import pandas as pd
 
-# Whatsapp Export file name
-file_name = "Whatsapp-Export-Analyser\data\whatsapp_data"
+# Whatsapp Export path without file extenstion
+file_name = "data\whatsapp_data"
 
 exclude_people = False # Set to False to exclude names in excluded from dataset
 exclude_metaAI = False # Set to False to exclude Meta AI from dataset
 after_date = "14/11/2024" # Choose when to start collecting data from dd/mm/yyyy
 before_date = "15/12/2026" # Choose when to stop collecting data from dd/mm/yyyy
-
 
 chat_log = []
 check_data = False
@@ -22,10 +21,10 @@ def add_log(timestamp, msg, chat_log):
     chat_log.append(data)
 
 def check_excldues(name):
-    with open("Whatsapp-Export-Analyser\excluded.txt") as ef:
+    with open("excluded.txt") as excludes:
         add_to_log = True
 
-        for exclude_name in ef.read().split():
+        for exclude_name in excludes.read().split():
             if exclude_name == name:
                 add_to_log = False
         
@@ -47,24 +46,28 @@ def save_to_csv(chat_log):
     df = df.sort_values("Datetime")
     df.to_csv(file_name+".csv")
 
+def main():
+    with open(file_name+".txt", encoding="utf8") as f:
+        log = f.read()
+        timestamps = re.findall(r"\n\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - ", log)
+        messages = re.split(r"\n\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - ", log)[1:]
 
-with open(file_name+".txt", encoding="utf8") as f:
-    log = f.read()
-    timestamps = re.findall(r"\n\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - ", log)
-    messages = re.split(r"\n\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - ", log)[1:]
-
-    for i,timestamp in enumerate(timestamps):
-        if messages[i].find(":",3,15)>-1:
-            msg = messages[i].replace("\n"," ")
-            msg = msg.split(":",1)
-            check_data = check_data_range(timestamp,check_data)
-            if (check_data == True):
-                if exclude_people:
-                    if check_excldues(msg[0]):
+        for i,timestamp in enumerate(timestamps):
+            if messages[i].find(":",3,15)>-1:
+                msg = messages[i].replace("\n"," ")
+                msg = msg.split(":",1)
+                check_data = check_data_range(timestamp,check_data)
+                if (check_data == True):
+                    if exclude_people:
+                        if check_excldues(msg[0]):
+                            if msg[1][:6] != " POLL:":
+                                add_log(timestamp, msg, chat_log)
+                    else:
                         if msg[1][:6] != " POLL:":
-                            add_log(timestamp, msg, chat_log)
-                else:
-                    if msg[1][:6] != " POLL:":
-                            add_log(timestamp, msg, chat_log)
+                                add_log(timestamp, msg, chat_log)
 
-save_to_csv(chat_log)
+    save_to_csv(chat_log)
+
+    print("Finished Parsing")
+
+main()
