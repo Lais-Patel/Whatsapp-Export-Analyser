@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 
 # Whatsapp Export path without file extenstion
-file_name = "data\whatsapp_data"
+file_name = "data/whatsapp_data"
 
 exclude_people = True # Set to False to exclude names in excluded from dataset
 exclude_metaAI = True # Set to False to exclude Meta AI from dataset
@@ -44,6 +44,26 @@ def save_to_csv(chat_log):
     df = df.sort_values("Datetime")
     df.to_csv(file_name+".csv")
 
+def cent_done(current, total):
+    if current == round(total*0.1):
+        print("10%")
+    elif current == round(total*0.2):
+        print("20%")
+    elif current == round(total*0.3):
+        print("30%")
+    elif current == round(total*0.4):
+        print("40%")
+    elif current == round(total*0.5):
+        print("50%")
+    elif current == round(total*0.6):
+        print("60%")
+    elif current == round(total*0.7):
+        print("70%")
+    elif current == round(total*0.8):
+        print("80%")
+    elif current == round(total*0.9):
+        print("90%")
+
 def main():
     check_data = False
     with open(file_name+".txt", encoding="utf8") as f:
@@ -52,6 +72,7 @@ def main():
         messages = re.split(r"\n\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - ", log)[1:]
 
         for i,timestamp in enumerate(timestamps):
+            cent_done(i,len(timestamps))
             if messages[i].find(":",3,15)>-1:
                 msg = messages[i].replace("\n"," ")
                 msg = msg.split(":",1)
