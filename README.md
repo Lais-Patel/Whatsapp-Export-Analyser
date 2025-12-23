@@ -16,3 +16,16 @@ To graph and analyse whatsapp exports to see cool data
 - messages graphed by hours overall
 - messages length avg by words per person
 - word count per person
+
+# Whatsapp Wrapped datapoints
+- percentage of total messages being yours
+- most common emojis you sent
+- most common stickers you sent (ext)
+- peak time you messaged at + graph
+- peak day and week you messaged + how many
+- your longest message you sent
+- average messages per day
+- average message length by words
+- longest concurrent time spent in chat
+- how many minutes spent in chat
+- longest streak of days messaging

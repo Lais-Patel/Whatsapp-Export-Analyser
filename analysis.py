@@ -75,12 +75,7 @@ def plot_time_person(case, chat_log, graph, f_or_p="period", axis="linear", pos=
     graph[pos[0],pos[1]].set_position([box.x0, box.y0 + box.height * 0.1, box.width, box.height * 0.9])
     graph[pos[0],pos[1]].legend(title="Name", loc='upper center', bbox_to_anchor=(0.5, -0.05), ncol=6)
 
-
-def main():
-    chat_log = read_csv()
-    chat_log["Message_Count"] = 1
-    time = "week"
-
+def four_graphs(chat_log, time):
     fig, graph = plt.subplots(2,2)
 
     graph[0,0].plot((plot_time_freq(time, chat_log)), marker='.', linestyle='-')
@@ -92,5 +87,13 @@ def main():
     plot_time_person(time, chat_log, graph, f_or_p="period", axis="symlog", pos=[1,1])
 
     plt.show()
+
+
+def main():
+    chat_log = read_csv()
+    chat_log["Message_Count"] = 1
+
+    four_graphs(chat_log, "day")
+
 
 main()
