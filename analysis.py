@@ -88,12 +88,38 @@ def four_graphs(chat_log, time):
 
     plt.show()
 
+def percentage_total(chat_log, name):
+    messages_sent = chat_log.groupby('Name')['Message_Count'].sum()[name]
+    total_messages_sent = len(chat_log)
+    percentage_sent = (messages_sent/total_messages_sent) * 100
+    return round(percentage_sent, 3)
+
+def peak_time(chat_log, name, time):
+    grouped_data = chat_log.groupby("Name")['Message'].groupby(pd.Grouper(freq='H'))["Message_Count"].sum()[name]
+    print(grouped_data)
+
+
 
 def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
+    name = "Lais Patel"
 
-    four_graphs(chat_log, "day")
+    peak_time(chat_log,"Lais Patel",1)
 
 
 main()
+
+'''
+done - percentage of total messages being yours
+- most common emojis you sent
+- most common stickers you sent (ext)
+- peak time you messaged at + graph
+- peak day and week you messaged + how many
+- your longest message you sent
+- average messages per day
+- average message length by words
+- longest concurrent time spent in chat
+- how many minutes spent in chat
+- longest streak of days messaging
+'''
