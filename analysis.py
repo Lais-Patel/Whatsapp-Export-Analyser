@@ -94,9 +94,29 @@ def percentage_total(chat_log, name):
     percentage_sent = (messages_sent/total_messages_sent) * 100
     return round(percentage_sent, 3)
 
-def peak_time(chat_log, name, time):
-    grouped_data = chat_log.groupby("Name")['Message'].groupby(pd.Grouper(freq='H'))["Message_Count"].sum()[name]
-    print(grouped_data)
+def peak_time(name_log, name, time):
+    name_log = name_log.drop("Message", axis='columns').drop("Name", axis='columns')
+
+    match time.lower():
+        case "hour":
+            data = name_log.groupby([name_log.index.hour]).sum()
+            return data
+        case "day":
+            data = name_log.groupby(pd.Grouper(freq='D'))["Message_Count"].sum()
+        case "week":
+            data = name_log.groupby(pd.Grouper(freq='W'))["Message_Count"].sum()
+
+    message_time = []
+    for index, item in data.items():
+        message_time.append((item, index))
+    message_time.sort(reverse=True)
+
+    top_time = []
+    for i in range(3):
+        top_time.append({ message_time[i][1] : message_time[i][0] })
+        
+    return top_time
+    
 
 
 
@@ -105,7 +125,9 @@ def main():
     chat_log["Message_Count"] = 1
     name = "Lais Patel"
 
-    peak_time(chat_log,"Lais Patel",1)
+    for name, group in chat_log.groupby("Name"):
+        x = peak_time(group, name, "hour")
+        print(x)
 
 
 main()
@@ -114,8 +136,8 @@ main()
 done - percentage of total messages being yours
 - most common emojis you sent
 - most common stickers you sent (ext)
-- peak time you messaged at + graph
-- peak day and week you messaged + how many
+done - peak time you messaged at + graph
+done - peak day and week you messaged + how many
 - your longest message you sent
 - average messages per day
 - average message length by words
