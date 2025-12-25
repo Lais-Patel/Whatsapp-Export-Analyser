@@ -125,9 +125,20 @@ def main():
     chat_log["Message_Count"] = 1
     name = "Lais Patel"
 
-    for name, group in chat_log.groupby("Name"):
-        x = peak_time(group, name, "hour")
-        print(x)
+    
+    max = "justASingularWordInnit"
+    for item in chat_log["Message"].items():
+        try:
+            len(item[1])
+        except:
+            print(item)
+            print(item[1])
+        if item[1] != "nan":
+            if len(item[1])>len(max):
+                max = item
+    print(name)
+    print(max)
+
 
 
 main()
@@ -144,4 +155,4 @@ done - peak day and week you messaged + how many
 - longest concurrent time spent in chat
 - how many minutes spent in chat
 - longest streak of days messaging
-'''
+''' 
