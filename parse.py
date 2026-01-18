@@ -16,6 +16,19 @@ def add_log(timestamp, msg, chat_log):
     data = [datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ")]
     data.append(msg[0])
     data.append(msg[1][1:])
+    for i in range(3):
+        data.append(0)
+
+    if msg[1][1:] == "<Media omitted>":
+        data[2] = " "
+        data[3] = 1
+    elif msg[1][-26:] == " <This message was edited>":
+        data[2] = msg[1][1:-26]
+        data[4] = 1
+    elif msg[1][1:] == "This message was deleted":
+        data[2] = " "
+        data[5] = 1
+        
     chat_log.append(data)
 
 def check_excldues(name):
@@ -39,7 +52,7 @@ def check_data_range(timestamp, check_data):
     return check_data
 
 def save_to_csv(chat_log):
-    df = pd.DataFrame(chat_log, columns=["Datetime","Name","Message"])
+    df = pd.DataFrame(chat_log, columns=["Datetime","Name","Message","Media","Edit","Delete"])
     df = df.set_index("Datetime")
     df = df.sort_values("Datetime")
     df.to_csv(file_name+".csv")
@@ -68,10 +81,10 @@ def main():
                 if (check_data == True):
                     if exclude_people:
                         if check_excldues(msg[0]):
-                            if msg[1][:6] != " POLL:":
+                            if msg[1][:6] != " POLL:" and len(msg[1][1:]) != 0:
                                 add_log(timestamp, msg, chat_log)
                     else:
-                        if msg[1][:6] != " POLL:":
+                        if msg[1][:6] != " POLL:" and len(msg[1][1:]) != 0:
                                 add_log(timestamp, msg, chat_log)
 
     save_to_csv(chat_log)
