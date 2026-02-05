@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 import pandas as pd
+import random
 
 # Whatsapp Export path without file extenstion
 file_name = "data/whatsapp_data"
@@ -59,11 +60,20 @@ def save_to_csv(chat_log):
 
 def cent_done(current, total, count):
     if current//(total*0.1) == count:
-        print(round((current/total)*100))
+        print(str(round((current/total)*100))+"%")
+        for i in range(10):
+            count_word(chat_log[random.randint(1,100)*-1][2])
         return 1
     return 0
 
-    
+def count_word(message):
+    print(message.strip())
+    print(message.split())
+    print(len(message.split()))
+    words = re.findall("[\w'’]+", message)
+    word_count = len(words)
+    print(words)
+    print(word_count)
 
 def main():
     check_data = False
