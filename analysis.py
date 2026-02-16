@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.scale import LogScale
 from datetime import datetime
 import pandas as pd
+import random
 
 def read_csv():
     chat_log = pd.read_csv("data/whatsapp_data.csv")
@@ -117,28 +118,51 @@ def peak_time(name_log, name, time):
         
     return top_time
     
+def streak_finder(name,chat_log):
+    streak_dict = {}
+    for name,log in chat_log.groupby("Name"):
+        streak = 0
+        max_streak = 0
+        prior_date = log.index[0]
+        # print(name)
+
+        for time in log.index:
+            difference = (time - prior_date).days
+
+            if difference == 0:
+                continue
+            elif difference == 1:
+                streak += 1
+                # print(difference,"diff", streak, "s", max_streak, "ms", time)
+            elif difference > 1:
+                streak = 1
+                # print(difference,"diff", streak, "s", max_streak, "ms", time)
+            
+            if max_streak < streak:
+                max_streak = streak
+            
+            prior_date = time
+            
+        streak_dict[name]= max_streak
+
+    lazy = []
+
+    for data in streak_dict:
+        lazy.append([streak_dict[data],data])
+    lazy.sort()
+    for data in lazy:
+        print(data)
 
 
 
 def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
-    name = "Lais Patel"
+    
+    streak_finder("Lais Patel", chat_log)
 
     
-    max = "justASingularWordInnit"
-    for item in chat_log["Message"].items():
-        try:
-            len(item[1])
-        except:
-            print(item)
-            print(item[1])
-        if item[1] != "nan":
-            if len(item[1])>len(max):
-                max = item
-    print(name)
-    print(max)
-
+    
 
 
 main()
