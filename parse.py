@@ -17,6 +17,7 @@ def add_log(timestamp, msg, chat_log):
     data = [datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ")]
     data.append(msg[0])
     data.append(msg[1][1:])
+    data.append(count_word(msg[1]))
     for i in range(3):
         data.append(0)
 
@@ -53,7 +54,7 @@ def check_data_range(timestamp, check_data):
     return check_data
 
 def save_to_csv(chat_log):
-    df = pd.DataFrame(chat_log, columns=["Datetime","Name","Message","Media","Edit","Delete"])
+    df = pd.DataFrame(chat_log, columns=["Datetime","Name","Message","Word_Count","Media","Edit","Delete"])
     df = df.set_index("Datetime")
     df = df.sort_values("Datetime")
     df.to_csv(file_name+".csv")
@@ -61,7 +62,7 @@ def save_to_csv(chat_log):
 def cent_done(current, total, count):
     if current//(total*0.1) == count:
         print(str(round((current/total)*100))+"%")
-        for i in range(10):
+        for i in range(2):
             count_word(chat_log[random.randint(1,100)*-1][2])
         return 1
     return 0
@@ -70,10 +71,11 @@ def count_word(message):
     print(message.strip())
     print(message.split())
     print(len(message.split()))
-    words = re.findall("[\w'’]+", message)
+    words = re.findall("[\w'’:,]+", message)
     word_count = len(words)
     print(words)
     print(word_count)
+    return(word_count)
 
 def main():
     check_data = False
