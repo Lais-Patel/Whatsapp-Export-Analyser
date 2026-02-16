@@ -63,18 +63,20 @@ def cent_done(current, total, count):
     if current//(total*0.1) == count:
         print(str(round((current/total)*100))+"%")
         for i in range(2):
-            count_word(chat_log[random.randint(1,100)*-1][2])
+            count_word(chat_log[random.randint(1,100)*-1][2], True)
         return 1
     return 0
 
-def count_word(message):
-    print(message.strip())
-    print(message.split())
-    print(len(message.split()))
-    words = re.findall("[\w'’:,]+", message)
+def count_word(message, debug=False):
+    if debug:
+        print(message.strip())
+        print(message.split())
+        print(len(message.split()))
+    words = re.findall("[\w'’:,-]+", message)
     word_count = len(words)
-    print(words)
-    print(word_count)
+    if debug:
+        print(words)
+        print(word_count)
     return(word_count)
 
 def main():
