@@ -153,13 +153,13 @@ def streak_finder(name,chat_log):
     for data in lazy:
         print(data)
 
-
-
 def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
-    
-    streak_finder("Lais Patel", chat_log)
+
+    print_leaderboard(chat_log)
+    plot_messages(chat_log)
+    #streak_finder("Lais Patel", chat_log)
 
     
     
