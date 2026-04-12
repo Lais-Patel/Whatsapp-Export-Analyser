@@ -10,16 +10,28 @@ def read_csv():
     chat_log = chat_log.set_index('Datetime')
     return chat_log
     
-def print_leaderboard(chat_log):
-    name_counts = chat_log.groupby("Name").size().reset_index(name='Total Messages')
-    sorted_counts = name_counts.sort_values(by='Total Messages', ascending=False)
-    print(sorted_counts)
+def print_leaderboard(chat_log, word=False):
+    if word == False:
+        name_counts = chat_log.groupby("Name").size().reset_index(name='Total_Messages')
+        sorted_counts = name_counts.sort_values(by='Total_Messages', ascending=False)
+    elif word:
+        name_counts = chat_log[chat_log['Edit'] == 1].groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum')).reset_index()
+        name_counts["Avg_Words_per_Msg"] = (name_counts["Total_Words"]/name_counts["Total_Messages"]).round(4)
+        sorted_counts = name_counts.sort_values(by="Total_Messages", ascending=False)
 
-def plot_messages(chat_log,Name=""):
-    chat_log["Message_Count"] = 1
-    for name, group in chat_log.groupby("Name"):
-        if Name == "" or Name == name:
-            plt.plot(group.index, group["Message_Count"].cumsum(), label=name)
+    print(sorted_counts.to_string(index=False))
+
+def plot_messages(chat_log,word=False,Name=""):
+    if word:
+        messageOrWord = "Word_Count"
+    else:
+        chat_log["Message_Count"] = 1
+        messageOrWord = "Message_Count"
+
+    for name, group in chat_log[chat_log['Edit'] == 1].groupby("Name"):
+        if Name == "" or name in Name:
+            plt.plot(group.index, group[messageOrWord].cumsum(), label=name)
+    
     plt.yscale("linear")
     plt.legend(title="Name", loc='upper left')
     plt.tight_layout()
@@ -158,10 +170,9 @@ def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
 
-    print_leaderboard(chat_log)
-    plot_messages(chat_log, "Lais Patel")
+    print_leaderboard(chat_log,True)
+    plot_messages(chat_log)
     #streak_finder("Lais Patel", chat_log)
-
     
     
 
