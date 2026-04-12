@@ -15,10 +15,11 @@ def print_leaderboard(chat_log):
     sorted_counts = name_counts.sort_values(by='Total Messages', ascending=False)
     print(sorted_counts)
 
-def plot_messages(chat_log):
+def plot_messages(chat_log,Name=""):
     chat_log["Message_Count"] = 1
     for name, group in chat_log.groupby("Name"):
-        plt.plot(group.index, group["Message_Count"].cumsum(), label=name)
+        if Name == "" or Name == name:
+            plt.plot(group.index, group["Message_Count"].cumsum(), label=name)
     plt.yscale("linear")
     plt.legend(title="Name", loc='upper left')
     plt.tight_layout()
@@ -158,7 +159,7 @@ def main():
     chat_log["Message_Count"] = 1
 
     print_leaderboard(chat_log)
-    plot_messages(chat_log)
+    plot_messages(chat_log, "Lais Patel")
     #streak_finder("Lais Patel", chat_log)
 
     
