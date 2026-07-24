@@ -11,7 +11,7 @@ file_names = [
 exclude_people = True # Set to False to exclude names in excluded from dataset
 exclude_metaAI = True # Set to False to exclude Meta AI from dataset
 after_date = datetime(2023, 2, 14) # Choose when to start collecting data from (yyyy,mm,dd)
-before_date = datetime(2027, 11, 14) # Choose when to stop collecting data from yyyy,mm,dd)
+before_date = datetime(2027, 11, 14) # Choose when to stop collecting data from (yyyy,mm,dd)
 
 chat_log = []
 
@@ -25,15 +25,15 @@ def add_log(timestamp, msg, chat_log, file_name):
         data.append(0)
 
     if msg[1][1:] == "<Media omitted>":
-        data[2] = " "
-        data[3] = 0
-        data[4] = 1
-    elif msg[1][-26:] == " <This message was edited>":
-        data[2] = msg[1][1:-26]
+        data[3] = " "
+        data[4] = 0
         data[5] = 1
-    elif msg[1][1:] == "This message was deleted":
-        data[2] = " "
+    elif msg[1][-26:] == " <This message was edited>":
+        data[3] = msg[1][1:-26]
         data[6] = 1
+    elif msg[1][1:] == "This message was deleted":
+        data[3] = " "
+        data[7] = 1
         
     chat_log.append(data)
 
