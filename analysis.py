@@ -15,7 +15,7 @@ def print_leaderboard(chat_log, word=False):
         name_counts = chat_log.groupby("Name").size().reset_index(name='Total_Messages')
         sorted_counts = name_counts.sort_values(by='Total_Messages', ascending=False)
     elif word:
-        name_counts = chat_log[chat_log['Edit'] == 1].groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum')).reset_index()
+        name_counts = chat_log.groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum')).reset_index()
         name_counts["Avg_Words_per_Msg"] = (name_counts["Total_Words"]/name_counts["Total_Messages"]).round(4)
         sorted_counts = name_counts.sort_values(by="Total_Messages", ascending=False)
 
@@ -28,7 +28,7 @@ def plot_messages(chat_log,word=False,Name=""):
         chat_log["Message_Count"] = 1
         messageOrWord = "Message_Count"
 
-    for name, group in chat_log[chat_log['Edit'] == 1].groupby("Name"):
+    for name, group in chat_log.groupby("Name"):
         if Name == "" or name in Name:
             plt.plot(group.index, group[messageOrWord].cumsum(), label=name)
     
@@ -42,7 +42,7 @@ def plot_time_freq(case, chat_log):
 
     match case.lower():
         case "hour":
-            frequency = "H"
+            frequency = "h"
         case "day":
             frequency = "D"
         case "week":
@@ -153,10 +153,11 @@ def streak_finder(name,chat_log):
             
             if max_streak < streak:
                 max_streak = streak
+                max_streak_date = time
             
             prior_date = time
             
-        streak_dict[name]= max_streak
+        streak_dict[name]= (max_streak, max_streak_date)
 
     lazy = []
 
@@ -170,9 +171,9 @@ def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
 
-    print_leaderboard(chat_log,True)
+    print_leaderboard(chat_log, True)
     plot_messages(chat_log)
-    #streak_finder("Lais Patel", chat_log)
+    streak_finder("Lais Patel", chat_log)
     
     
 

@@ -5,20 +5,19 @@ import random
 
 # Whatsapp Export path without file extenstion
 file_names = [
-    "data/w1_data",
-    "data/w2_data"
     ]
              
 
 exclude_people = True # Set to False to exclude names in excluded from dataset
 exclude_metaAI = True # Set to False to exclude Meta AI from dataset
-after_date = datetime(2026, 2, 14) # Choose when to start collecting data from (yyyy,mm,dd)
-before_date = datetime(2026, 12, 15) # Choose when to stop collecting data from yyyy,mm,dd)
+after_date = datetime(2023, 2, 14) # Choose when to start collecting data from (yyyy,mm,dd)
+before_date = datetime(2027, 11, 14) # Choose when to stop collecting data from yyyy,mm,dd)
 
 chat_log = []
 
-def add_log(timestamp, msg, chat_log):
+def add_log(timestamp, msg, chat_log, file_name):
     data = [datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ")]
+    data.append(file_name[5:])
     data.append(msg[0])
     data.append(msg[1][1:])
     data.append(count_word(msg[1]))
@@ -52,14 +51,20 @@ def check_excldues(name):
     return add_to_log
 
 def check_data_range(timestamp, check_data):
-    if check_data == False and (datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ") >= after_date):
+    if check_data == False and after_date <= (datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ")) <= before_date:
+        print(f'{datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ")} >= {after_date}')
+        print((datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ") >= after_date))
         check_data = True
-    elif check_data == True and (datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ") <= before_date):
+        print("in range")
+    elif check_data == True and (datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ") >= before_date):
+        print(f'{datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ")} <= {before_date}')
+        print((datetime.strptime(timestamp[1:], "%d/%m/%Y, %H:%M - ") >= before_date))
         check_data = False
+        print("out range")
     return check_data
 
 def save_to_csv(chat_log):
-    df = pd.DataFrame(chat_log, columns=["Datetime","Name","Message","Word_Count","Media","Edit","Delete"])
+    df = pd.DataFrame(chat_log, columns=["Datetime","Chat","Name","Message","Word_Count","Media","Edit","Delete"])
     df = df.set_index("Datetime")
     df = df.sort_values("Datetime")
     df.to_csv("data/whatsapp_data.csv")
@@ -86,8 +91,8 @@ def count_word(message, debug=False):
         print(word_count)
     return(word_count)
 
-def file_processor(check_data,file_name):
-    print("Parsing file - ",file_name)
+def file_processor(check_data, file_name):
+    print("Parsing file - ", file_name)
     with open(file_name+".txt", encoding="utf8") as f:
         log = f.read()
         timestamps = re.findall(r"\n\d{2}/\d{2}/\d{4}, \d{2}:\d{2} - ", log)
@@ -103,17 +108,17 @@ def file_processor(check_data,file_name):
                     if exclude_people:
                         if check_excldues(msg[0]):
                             if msg[1][:6] != " POLL:" and len(msg[1][1:]) != 0:
-                                add_log(timestamp, msg, chat_log)
+                                add_log(timestamp, msg, chat_log, file_name)
                     else:
                         if msg[1][:6] != " POLL:" and len(msg[1][1:]) != 0:
-                                add_log(timestamp, msg, chat_log)
+                                add_log(timestamp, msg, chat_log, file_name)
     print("Finished Parsing file -",file_name)
     print()
 
 def main():
     check_data = False
     for file_to_process in file_names:
-        file_processor(check_data,file_to_process)
+        file_processor(check_data, "data/"+file_to_process)
 
     save_to_csv(chat_log)
 
