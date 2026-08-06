@@ -167,6 +167,18 @@ def streak_finder(name,chat_log):
     for data in lazy:
         print(data)
 
+def colour_calendar(chat_log):
+    for name,log in chat_log.groupby("Name"):
+        if name == name:
+            grouped_data = log.groupby(pd.Grouper(freq="D"))["Message_Count"].sum()
+            print()
+            max = grouped_data.quantile(0.9)
+            print("max",max)
+            for x in grouped_data.nlargest(10):
+                print(name,x,(x*1/max).round())
+
+
+
 def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
@@ -186,10 +198,10 @@ done - percentage of total messages being yours
 - most common stickers you sent (ext)
 done - peak time you messaged at + graph
 done - peak day and week you messaged + how many
-- your longest message you sent
+done your longest message you sent
 - average messages per day
-- average message length by words
+done average message length by words
 - longest concurrent time spent in chat
 - how many minutes spent in chat
-- longest streak of days messaging
+done longest streak of days messaging
 ''' 
