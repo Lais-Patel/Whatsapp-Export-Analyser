@@ -92,6 +92,7 @@ def count_word(message, debug=False):
     return(word_count)
 
 def file_processor(check_data, file_name):
+    finding_joins = []
     print("Parsing file - ", file_name)
     with open(file_name+".txt", encoding="utf8") as f:
         log = f.read()
@@ -112,15 +113,20 @@ def file_processor(check_data, file_name):
                     else:
                         if msg[1][:6] != " POLL:" and len(msg[1][1:]) != 0:
                                 add_log(timestamp, msg, chat_log, file_name)
+            else:
+                if (messages[i].find("added") > 0) or (messages[i].find("left") > 0) or (messages[i].find("joined") > 0):
+                    finding_joins.append((timestamp, messages[i]))
     print("Finished Parsing file -",file_name)
     print()
+    for join in finding_joins:
+        print(join)
 
 def main():
     check_data = False
     for file_to_process in file_names:
         file_processor(check_data, "data/"+file_to_process)
 
-    save_to_csv(chat_log)
+    #save_to_csv(chat_log)
 
     print("Finished Parsing")
 
