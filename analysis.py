@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.scale import LogScale
 from datetime import datetime
 import pandas as pd
+import numpy as np
 import random
 
 def read_csv():
@@ -21,7 +22,7 @@ def print_leaderboard(chat_log, word=False):
 
     print(sorted_counts.to_string(index=False))
 
-def plot_messages(chat_log,word=False,Name=""):
+def plot_messages(chat_log, Name="", word=False):
     if word:
         messageOrWord = "Word_Count"
     else:
@@ -102,8 +103,8 @@ def four_graphs(chat_log, time):
 
     plt.show()
 
-def percentage_total(chat_log, name):
-    messages_sent = chat_log.groupby('Name')['Message_Count'].sum()[name]
+def percentage_total(chat_log, Name):
+    messages_sent = chat_log.groupby('Name')['Message_Count'].sum()[Name]
     total_messages_sent = len(chat_log)
     percentage_sent = (messages_sent/total_messages_sent) * 100
     return round(percentage_sent, 3)
@@ -131,7 +132,7 @@ def peak_time(name_log, name, time):
         
     return top_time
     
-def streak_finder(name,chat_log):
+def streak_finder(chat_log, Name):
     streak_dict = {}
     for name,log in chat_log.groupby("Name"):
         streak = 0
@@ -167,28 +168,46 @@ def streak_finder(name,chat_log):
     for data in lazy:
         print(data)
 
-def colour_calendar(chat_log):
+def colour_calendar(chat_log, Name):
     for name,log in chat_log.groupby("Name"):
-        if name == name:
+        if name == Name:
             grouped_data = log.groupby(pd.Grouper(freq="D"))["Message_Count"].sum()
-            print()
-            max = grouped_data.quantile(0.9)
-            print("max",max)
-            for x in grouped_data.nlargest(10):
-                print(name,x,(x*1/max).round())
+            grouped_data = grouped_data.reset_index()
+            grouped_data["Datetime"] = pd.to_datetime(grouped_data["Datetime"])
+
+            grouped_data["year"] = grouped_data["Datetime"].dt.year
+            grouped_data["month"] = grouped_data["Datetime"].dt.month
+            grouped_data["week"] = grouped_data["Datetime"].dt.strftime('%W').astype(int)
+            grouped_data["day_name"] = grouped_data["Datetime"].dt.dayofweek
+            grouped_data["day"] = grouped_data["Datetime"].dt.day
+
+            fig, axes = plt.subplots(grouped_data["year"].nunique(), 1, figsize=(12,10))
+
+            for i,year in enumerate(grouped_data["year"].unique()):
+                heatmap_data = grouped_data[grouped_data["year"]==year].pivot_table(index="day_name",columns="week",values="Message_Count")
+                heatmap_data = heatmap_data.reindex(index=list(range(6)), columns=list(range(54)), fill_value=np.nan).replace(0, np.nan)
+                g = axes[i].imshow(heatmap_data, cmap='inferno')
+
+            fig.colorbar(g, ax=axes, label='Messages Sent that Day')
+            plt.show()
 
 
+            ''' Will leave this as an idea for later
+                max = grouped_data.quantile(0.9)
+                print("max",max)
+                for x in grouped_data.nlargest(10):
+                print(name,x,(x*1/max).round())'''
 
 def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
-
-    print_leaderboard(chat_log, True)
-    plot_messages(chat_log)
-    streak_finder("Lais Patel", chat_log)
     
-    
+    colour_calendar(chat_log, "Lais Patel")
 
+    #print_leaderboard(chat_log, True)
+    #plot_messages(chat_log)
+    #streak_finder(chat_log, "Lais Patel")
+    
 
 main()
 
