@@ -185,8 +185,12 @@ def colour_calendar(chat_log, Name):
 
             for i,year in enumerate(grouped_data["year"].unique()):
                 heatmap_data = grouped_data[grouped_data["year"]==year].pivot_table(index="day_name",columns="week",values="Message_Count")
-                heatmap_data = heatmap_data.reindex(index=list(range(6)), columns=list(range(54)), fill_value=np.nan).replace(0, np.nan)
-                g = axes[i].imshow(heatmap_data, cmap='inferno')
+                heatmap_data = heatmap_data.reindex(index=list(range(7)), columns=list(range(54)), fill_value=np.nan).replace(0, np.nan)
+                print(grouped_data["year"].nunique())
+                if grouped_data["year"].nunique() == 1:
+                    g = axes.imshow(heatmap_data, cmap='Greens')
+                else:
+                    g = axes[i].imshow(heatmap_data, cmap='Greens')
 
             fig.colorbar(g, ax=axes, label='Messages Sent that Day')
             plt.show()
@@ -223,4 +227,7 @@ done average message length by words
 - longest concurrent time spent in chat
 - how many minutes spent in chat
 done longest streak of days messaging
+
+- avg word length
+- avg sentence length
 ''' 
