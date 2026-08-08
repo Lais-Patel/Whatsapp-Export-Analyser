@@ -29,13 +29,14 @@ def add_log(timestamp, msg, chat_log, file_name):
     if msg[1][1:] == "<Media omitted>":
         data[3] = " "
         data[4] = 0
-        data[5] = 1
+        data[5] = 0
+        data[6] = 1
     elif msg[1][-26:] == " <This message was edited>":
         data[3] = msg[1][1:-26]
-        data[6] = 1
+        data[7] = 1
     elif msg[1][1:] == "This message was deleted":
         data[3] = " "
-        data[7] = 1
+        data[8] = 1
         
     chat_log.append(data)
 
