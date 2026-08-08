@@ -11,16 +11,27 @@ def read_csv():
     chat_log = chat_log.set_index('Datetime')
     return chat_log
     
-def print_leaderboard(chat_log, word=False):
-    if word == False:
-        name_counts = chat_log.groupby("Name").size().reset_index(name='Total_Messages')
-        sorted_counts = name_counts.sort_values(by='Total_Messages', ascending=False)
-    elif word:
-        name_counts = chat_log.groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum'), Total_Letters=('Letter_Count', 'sum')).reset_index()
-        name_counts["Avg_Words_per_Msg"] = (name_counts["Total_Words"]/name_counts["Total_Messages"]).round(4)
-        name_counts["Avg_Letters_per_Word"] = (name_counts["Total_Letters"]/name_counts["Total_Words"]).round(4)
-        sorted_counts = name_counts.sort_values(by="Avg_Letters_per_Word", ascending=False)
+def print_leaderboard(chat_log, word=False, letter=False, media=False, edit=False, delete=False):
+    name_counts = chat_log[(chat_log['Delete'] != 1) & (chat_log['Media'] != 1)].groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum'), Total_Letters=('Letter_Count', 'sum')).reset_index()
+    name_counts["Media"] = chat_log[chat_log['Media'] == 1].groupby("Name").agg(Media=('Name', 'size')).reset_index()['Media']
+    name_counts["Delete"] = chat_log[chat_log['Delete'] == 1].groupby("Name").agg(Delete=('Name', 'size')).reset_index()['Delete'].map('{:.0f}'.format)
+    name_counts["Edit"] = chat_log[chat_log['Edit'] == 1].groupby("Name").agg(Edit=('Name', 'size')).reset_index()['Edit'].map('{:.0f}'.format)
+    name_counts["Avg_Words_per_Msg"] = (name_counts["Total_Words"]/name_counts["Total_Messages"]).round(4)
+    name_counts["Avg_Letters_per_Word"] = (name_counts["Total_Letters"]/name_counts["Total_Words"]).round(4)
 
+    columns = ['Name', 'Total_Messages']
+    if word:
+        columns.extend(['Total_Words', 'Avg_Words_per_Msg'])
+    if letter:
+        columns.extend(['Total_Letters', 'Avg_Letters_per_Word'])
+    if media:
+        columns.append('Media')
+    if edit:
+        columns.append('Edit')
+    if delete:
+        columns.append('Delete')
+    
+    sorted_counts = name_counts[columns].sort_values(by="Total_Messages", ascending=False).fillna(0)
     print(sorted_counts.to_string(index=False))
 
 def plot_messages(chat_log, Name="", word=False):
