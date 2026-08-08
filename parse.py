@@ -33,9 +33,13 @@ def add_log(timestamp, msg, chat_log, file_name):
         data[6] = 1
     elif msg[1][-26:] == " <This message was edited>":
         data[3] = msg[1][1:-26]
+        data[4] -= 4
+        data[5] -= 20
         data[7] = 1
     elif msg[1][1:] == "This message was deleted":
         data[3] = " "
+        data[4] = 0
+        data[5] = 0
         data[8] = 1
         
     chat_log.append(data)
