@@ -16,9 +16,10 @@ def print_leaderboard(chat_log, word=False):
         name_counts = chat_log.groupby("Name").size().reset_index(name='Total_Messages')
         sorted_counts = name_counts.sort_values(by='Total_Messages', ascending=False)
     elif word:
-        name_counts = chat_log.groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum')).reset_index()
+        name_counts = chat_log.groupby("Name").agg(Total_Messages=('Name', 'size'), Total_Words=('Word_Count', 'sum'), Total_Letters=('Letter_Count', 'sum')).reset_index()
         name_counts["Avg_Words_per_Msg"] = (name_counts["Total_Words"]/name_counts["Total_Messages"]).round(4)
-        sorted_counts = name_counts.sort_values(by="Total_Messages", ascending=False)
+        name_counts["Avg_Letters_per_Word"] = (name_counts["Total_Letters"]/name_counts["Total_Words"]).round(4)
+        sorted_counts = name_counts.sort_values(by="Avg_Letters_per_Word", ascending=False)
 
     print(sorted_counts.to_string(index=False))
 
@@ -186,7 +187,6 @@ def colour_calendar(chat_log, Name):
             for i,year in enumerate(grouped_data["year"].unique()):
                 heatmap_data = grouped_data[grouped_data["year"]==year].pivot_table(index="day_name",columns="week",values="Message_Count")
                 heatmap_data = heatmap_data.reindex(index=list(range(7)), columns=list(range(54)), fill_value=np.nan).replace(0, np.nan)
-                print(grouped_data["year"].nunique())
                 if grouped_data["year"].nunique() == 1:
                     g = axes.imshow(heatmap_data, cmap='Greens')
                 else:

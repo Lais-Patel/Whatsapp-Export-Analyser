@@ -20,7 +20,9 @@ def add_log(timestamp, msg, chat_log, file_name):
     data.append(file_name[5:])
     data.append(msg[0])
     data.append(msg[1][1:])
-    data.append(count_word(msg[1]))
+    word_c, letter_c = count_word(msg[1])
+    data.append(word_c)
+    data.append(letter_c)
     for i in range(3):
         data.append(0)
 
@@ -64,7 +66,7 @@ def check_data_range(timestamp, check_data):
     return check_data
 
 def save_to_csv(chat_log):
-    df = pd.DataFrame(chat_log, columns=["Datetime","Chat","Name","Message","Word_Count","Media","Edit","Delete"])
+    df = pd.DataFrame(chat_log, columns=["Datetime","Chat","Name","Message","Word_Count","Letter_Count","Media","Edit","Delete"])
     df = df.set_index("Datetime")
     df = df.sort_values("Datetime")
     df.to_csv("data/whatsapp_data.csv")
@@ -80,16 +82,24 @@ def cent_done(current, total, count):
     return 0
 
 def count_word(message, debug=False):
-    if debug:
+    if False:
         print(message.strip())
         print(message.split())
         print(len(message.split()))
     words = re.findall("[\w'’:,-]+", message)
     word_count = len(words)
+    letter_count = 0
+    for word in words:
+        letters = re.findall("[a-zA-Z]+", word)
+        for char in letters:
+            letter_count += len(char)
+            if debug:
+                print("letters",letters)
+                print("letter count",letter_count)
     if debug:
-        print(words)
-        print(word_count)
-    return(word_count)
+        print("words",words)
+        print("word count",word_count)
+    return(word_count, letter_count)
 
 def file_processor(check_data, file_name):
     finding_joins = []
@@ -126,7 +136,7 @@ def main():
     for file_to_process in file_names:
         file_processor(check_data, "data/"+file_to_process)
 
-    #save_to_csv(chat_log)
+    save_to_csv(chat_log)
 
     print("Finished Parsing")
 
