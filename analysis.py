@@ -3,6 +3,7 @@ from matplotlib.scale import LogScale
 from datetime import datetime
 import pandas as pd
 import numpy as np
+import emoji
 import random
 
 def read_csv():
@@ -213,6 +214,25 @@ def colour_calendar(chat_log, Name):
                 for x in grouped_data.nlargest(10):
                 print(name,x,(x*1/max).round())'''
 
+def emoji_count(chat_log):
+    people_dict = {}
+    for name,log in chat_log.groupby("Name"):
+        emoji_count_dict = {}
+        for message in log["Message"]:
+            try:
+                for emojis in emoji.emoji_list(message):
+                    char = emoji.emojize(emojis["emoji"])
+                    if char not in ["🟩","⬛","🟨","⬜","🟪","🟦","🟡","🔵"]:
+                        if char in emoji_count_dict:
+                            emoji_count_dict[char] += 1
+                        else:
+                            emoji_count_dict[char] = 1
+            except:
+                pass
+        people_dict[name] = dict(sorted(emoji_count_dict.items(), key=lambda x: x[1], reverse=True)[:5])
+    for name, items in people_dict.items():
+        print(name,items)
+
 def main():
     chat_log = read_csv()
     chat_log["Message_Count"] = 1
@@ -238,7 +258,5 @@ done average message length by words
 - longest concurrent time spent in chat
 - how many minutes spent in chat
 done longest streak of days messaging
-
-- avg word length
-- avg sentence length
+done avg word length
 ''' 
